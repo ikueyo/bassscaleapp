@@ -129,6 +129,16 @@ const createDrumEngine = (ctx) => {
   return { playSound };
 };
 
+const RAINBOW_COLORS = [
+  { bg: "bg-rose-500", text: "text-white", hex: "#f43f5e" },    // Root - Red
+  { bg: "bg-orange-500", text: "text-slate-900", hex: "#f97316" }, // 2nd - Orange
+  { bg: "bg-amber-400", text: "text-slate-900", hex: "#fbbf24" },  // 3rd - Yellow
+  { bg: "bg-emerald-500", text: "text-white", hex: "#10b981" },    // 4th - Green
+  { bg: "bg-cyan-500", text: "text-slate-900", hex: "#06b6d4" },   // 5th - Blue
+  { bg: "bg-indigo-500", text: "text-white", hex: "#6366f1" },    // 6th - Indigo
+  { bg: "bg-fuchsia-500", text: "text-white", hex: "#d946ef" },   // 7th - Purple
+];
+
 export default function BassGrooveChineseIntervals() {
   const [rootNote, setRootNote] = useState('E');
   const [selectedScaleKey, setSelectedScaleKey] = useState('minor_pentatonic');
@@ -249,26 +259,29 @@ export default function BassGrooveChineseIntervals() {
   const scaleNotesIndices = getScaleNotesIndices();
   const rootIndex = NOTES.indexOf(rootNote);
 
-  // --- 計算當前音階的詳細資訊 (音名 + 中文音程) ---
-  const currentScaleDetails = SCALES[selectedScaleKey].intervals.map(interval => {
+  // --- 計算當前音階的詳細資訊 ---
+  const currentScaleDetails = SCALES[selectedScaleKey].intervals.map((interval, index) => {
     const noteName = NOTES[(rootIndex + interval) % 12];
     const intervalData = INTERVAL_NAMES[interval];
-    return { note: noteName, intervalLabel: intervalData.label, isRoot: interval === 0 };
+    const color = RAINBOW_COLORS[index % RAINBOW_COLORS.length];
+    return { note: noteName, intervalLabel: intervalData.label, isRoot: interval === 0, color };
   });
 
 
   const renderNutString = (str, idx) => {
     const noteIndex = str.baseIndex % 12;
-    const isScaleNote = scaleNotesIndices.includes(noteIndex);
-    const isRoot = noteIndex === rootIndex;
+    const scaleIndex = scaleNotesIndices.indexOf(noteIndex);
+    const isScaleNote = scaleIndex !== -1;
+    const color = isScaleNote ? RAINBOW_COLORS[scaleIndex % RAINBOW_COLORS.length] : null;
 
     let styleClass = "text-slate-500 font-bold";
 
     if (isScaleNote) {
-      if (isRoot) {
-        styleClass = "w-7 h-7 md:w-8 md:h-8 rounded-full bg-rose-500 text-white flex items-center justify-center font-bold shadow-md ring-2 ring-rose-900";
+      const baseClass = "w-7 h-7 md:w-8 md:h-8 rounded-full flex items-center justify-center font-bold shadow-md";
+      if (scaleIndex === 0) { // Root
+        styleClass = `${baseClass} ${color.bg} ${color.text} ring-2 ring-rose-900`;
       } else {
-        styleClass = "w-7 h-7 md:w-8 md:h-8 rounded-full bg-cyan-500 text-slate-900 flex items-center justify-center font-bold shadow-md";
+        styleClass = `${baseClass} ${color.bg} ${color.text}`;
       }
     }
 
@@ -284,19 +297,20 @@ export default function BassGrooveChineseIntervals() {
   const renderFret = (stringData, fretNum) => {
     const noteIndex = (stringData.baseIndex + fretNum) % 12;
     const noteName = NOTES[noteIndex];
-    const isScaleNote = scaleNotesIndices.includes(noteIndex);
-    const isRoot = noteIndex === rootIndex;
+    const scaleIndex = scaleNotesIndices.indexOf(noteIndex);
+    const isScaleNote = scaleIndex !== -1;
+    const color = isScaleNote ? RAINBOW_COLORS[scaleIndex % RAINBOW_COLORS.length] : null;
+
     let markerClass = "hidden";
     let markerContent = "";
 
-    // 預設直接顯示音名
     if (isScaleNote) {
+      const isRoot = scaleIndex === 0;
       markerClass = `
         absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2
         w-7 h-7 md:w-9 md:h-9 rounded-full flex items-center justify-center text-xs md:text-sm font-bold shadow-lg transition-all duration-300
-        ${isRoot
-          ? "bg-rose-500 text-white ring-2 ring-rose-300 z-10 scale-110"
-          : "bg-cyan-500 text-slate-900 scale-100 opacity-90"}
+        ${color.bg} ${color.text}
+        ${isRoot ? "ring-2 ring-rose-300 z-10 scale-110" : "scale-100 opacity-90"}
       `;
       markerContent = noteName;
     }
@@ -370,13 +384,11 @@ export default function BassGrooveChineseIntervals() {
                     key={idx}
                     className={`
                                 flex flex-col items-center justify-center px-2 py-1.5 rounded-lg shadow-sm border border-opacity-20 min-w-[3.5rem]
-                                ${item.isRoot
-                        ? 'bg-rose-600 border-rose-400 text-white'
-                        : 'bg-slate-800 border-slate-600 text-slate-200'}
+                                ${item.color.bg} ${item.color.text}
                             `}
                   >
                     <span className="text-sm font-bold leading-none mb-1">{item.note}</span>
-                    <span className={`text-[10px] font-medium whitespace-nowrap ${item.isRoot ? 'text-rose-100' : 'text-cyan-400'}`}>
+                    <span className={`text-[10px] font-medium whitespace-nowrap ${item.isRoot ? 'text-rose-100' : 'text-slate-900 opacity-70'}`}>
                       {item.intervalLabel}
                     </span>
                   </div>
