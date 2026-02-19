@@ -277,12 +277,8 @@ export default function BassGrooveChineseIntervals() {
     let styleClass = "text-slate-500 font-bold";
 
     if (isScaleNote) {
-      const baseClass = "w-7 h-7 md:w-8 md:h-8 rounded-full flex items-center justify-center font-bold shadow-md";
-      if (scaleIndex === 0) { // Root
-        styleClass = `${baseClass} ${color.bg} ${color.text} ring-2 ring-rose-900`;
-      } else {
-        styleClass = `${baseClass} ${color.bg} ${color.text}`;
-      }
+      const baseClass = "w-7 h-7 md:w-8 md:h-8 rounded-full flex items-center justify-center font-bold shadow-md ring-2 ring-white/30";
+      styleClass = `${baseClass} ${color.bg} ${color.text} ${scaleIndex === 0 ? "ring-rose-300 z-10" : ""}`;
     }
 
     return (
@@ -309,8 +305,8 @@ export default function BassGrooveChineseIntervals() {
       markerClass = `
         absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2
         w-7 h-7 md:w-9 md:h-9 rounded-full flex items-center justify-center text-xs md:text-sm font-bold shadow-lg transition-all duration-300
-        ${color.bg} ${color.text}
-        ${isRoot ? "ring-2 ring-rose-300 z-10 scale-110" : "scale-100 opacity-90"}
+        ${color.bg} ${color.text} ring-2
+        ${isRoot ? "ring-white z-10 scale-110" : "ring-white/30 scale-100 opacity-90"}
       `;
       markerContent = noteName;
     }
