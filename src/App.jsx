@@ -427,7 +427,26 @@ export default function BassGrooveChineseIntervals() {
           <div className="flex items-center gap-6 w-full lg:w-auto justify-center bg-slate-900 px-4 py-2 rounded-xl border border-slate-800">
             <div className="flex items-center gap-3">
               <Disc className={`w-5 h-5 ${isPlaying ? 'text-rose-500 animate-spin' : 'text-slate-600'}`} />
-              <div className="text-3xl font-mono font-bold text-white w-14 text-center">{bpm}</div>
+              <input
+                type="number"
+                value={bpm}
+                onChange={(e) => {
+                  let value = parseInt(e.target.value);
+                  if (isNaN(value)) value = 40;
+                  // We allow typing, but the slider range is 40-240.
+                  // We can clamp on blur or just let it stay. 
+                  // Let's use a change handler that updates state immediately.
+                  setBpm(value);
+                }}
+                onBlur={(e) => {
+                  // Clamp value on blur to ensure it stays in reasonable bounds for the engine/slider
+                  let value = parseInt(e.target.value);
+                  if (isNaN(value) || value < 40) value = 40;
+                  if (value > 240) value = 240;
+                  setBpm(value);
+                }}
+                className="text-3xl font-mono font-bold text-white w-20 text-center bg-transparent border-b border-rose-500/30 focus:border-rose-500 focus:outline-none"
+              />
               <span className="text-xs text-slate-500 font-bold mt-2">BPM</span>
             </div>
             <input
